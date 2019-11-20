@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
-### need to fix for possibility of less then 500 particles in minimal set
-### have that script set a system variable and use it.
+####################################################################
+##               may need to update these paths                   ##
+####################################################################
+default_cryolo_model='/absl/SCRATCH/Users/fbsmi/rln_auto/schedule/Schedules/rlnaut_1/gmodel_phosnet_201909.h5'
+rlnaut_zipfile= '/fbs/emsoftware2/LINUX/fbsmi/scripts/workshop/rln_automated/rlnaut_v2.tar.gz'
+####################################################################
 
 import subprocess
 import sys
+import os
 
 ##-----------------------------------------------------------------------------------#
 errormsg = ""
@@ -49,13 +54,19 @@ def make_arg(flag, value, req):
 
 
 
+
 ## get the user input:
 errormsg='''
 Required arguments:
 --apix		<number>	Angstrom/pixel
---boxsize	<number>	Estimed box size to be used for refinement	
+--boxsize	<number>	Estimated box size to be used for refinement	
 --raw_data	<directory>	The name of the directory where the raw data are
-'''
+
+
+Optional arguments:
+--cryolo_model  <modelfile.h5>  Custom trained crYOLO model to use
+                                otherwise will use the default: 
+                                gmodel_phosnet_201909.h5'''
 
 print('''
 :::::::::::::::::::::::::::::::::::::
@@ -65,12 +76,22 @@ print('''
 pxsize = make_arg('--apix',True,True)
 boxsize = make_arg('--boxsize',True,True)
 raw_data = make_arg('--raw_data',True,True)
+yolomodel = make_arg('--cryolo_model',True,False)
+
+if yolomodel == False:
+	print(':: Using default crYOLO model ::')
+	yolomodel = default_cryolo_model
+elif os.path.isfile(yolomodel) == False:
+	yolomodel = default_cryolo_model
+	print(":: Can't find specified crYOLO model ::\nusing {0}".format(yolomodel))
+else:
+	print(':: Using custom crYOLO model::\n{0}'.format(yolomodel))
 
 print(':: Unpacking ::')
-subprocess.call('source /fbs/emsoftware2/LINUX/fbsmi/relion3.1/relion3p1.bashrc',shell=True)
-subprocess.call('tar -zxvf /absl/SCRATCH/Users/fbsmi/rln_auto/schedule/rlnaut_v2.tar.gz',shell=True)
+subprocess.call('tar -zxvf {0}'.format(rlnaut_zipfile),shell=True)
 
 print(':: Writing jobfiles ::')
+print('using crYOLO model: {0}'.format(yolomodel))
 ### update the files
 print('Schedules/rlnaut_1/Import/job.star')
 output = open('Schedules/rlnaut_1/Import/job.star','w')
@@ -150,7 +171,7 @@ param1_value         {0}
 param2_label    rawname 
 param2_value         {1} 
 param3_label      model 
-param3_value Schedules/rlnaut_1/gmodel_phosnet_201909.h5 
+param3_value         {2} 
 param4_label         "" 
 param4_value         "" 
 param5_label         "" 
@@ -166,7 +187,7 @@ param9_value         ""
       qsub       qsub 
 qsubscript /public/EM/RELION/relion/bin/relion_qsub.csh 
  queuename    openmpi 
-'''.format(boxsize,raw_data))
+'''.format(boxsize,raw_data,yolomodel))
 output.close()
 
 print('Schedules/rlnaut_1/Extract/job.star')

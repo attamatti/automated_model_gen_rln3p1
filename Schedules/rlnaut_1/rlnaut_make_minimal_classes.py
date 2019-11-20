@@ -102,69 +102,77 @@ def read_parts_file(partsfile):
 			data.append(i.split())
 		n+=1
 	return(labels,header,data)
-#try:
-print("++ Matt's rlnaut minimal class select ++\n")
-outdir = make_arg('--o',True,True)
-inparts = make_arg('--in_parts',True,True)
-thresh = float(make_arg('--thresh',True,True))
-inmodel = inparts.replace('_data','_model')
-print('particle count threshold: {0}'.format(thresh))
-labels,data = read_3p1star(inmodel) 
-returnclass = get_classes(data,labels,'_rlnClassDistribution',0.019)
-goodclasses = []
-for i in returnclass:
-	goodclasses.append(int(i[labels['_rlnReferenceImage']].split('@')[0]))
-goodclasses.sort()
-print('Selected {0} classes: {1}'.format(len(goodclasses),goodclasses))
-plabels,pheader,pdata = read_parts_file(inparts)
-output = open('{0}/selected_particles.star'.format(outdir),'w')
-for i in pheader:
-	output.write(i)
-theclasses = {}
-partcount = 0
-for i in pdata:
-	if int(i[plabels['_rlnClassNumber']]) in goodclasses:
-		output.write('{}\n'.format('  '.join(i)))
-		try:
-			theclasses[int(i[plabels['_rlnClassNumber']])].append(i)
-			partcount +=1
-		except:
-			theclasses[int(i[plabels['_rlnClassNumber']])] = [i]
-			partcount+=1
-
-## count the particles in each class 
-minno = min([len(theclasses[x]) for x in theclasses])
-for i in theclasses:
-	theclasses[i].sort(key=lambda x: x[plabels['_rlnMaxValueProbDistribution']],reverse=True)
-
-minout = open('{0}/minimal_classes.star'.format(outdir),'w')
-
-## make the minimal output starfile
-for i in pheader:
-	minout.write(i)
-classcount = {}
-minpcount = 0
-for i in theclasses:
-	if len(theclasses[i]) >= 2*minno:
-		for j in theclasses[i][:(2*minno)]:
-			minout.write('{}\n'.format(' '.join(j)))
-		classcount[i] = 2*minno
-		minpcount+=2*minno
-	else:
-		for j in theclasses[i]:
-			minout.write('{}\n'.format(' '.join(j)))
-		classcount[i] = len(theclasses[i])
-		minpcount+=len(theclasses)
-
-
-
-print('\n+ Minimized set stats +\nclass\tparts\tweight')
-for i in goodclasses:
-	print('{0}\t{1}\t{2:0.2f}'.format(i,classcount[i],float(classcount[i])/(minno*2)))
-print('\nMinimized particle set contains {0} particles'.format(minpcount))
-print('Minimized set written to: {0}'.format('{0}/minimal_classes.star\n'.format(outdir)))
-print('Full particle set contains {0} particles'.format(partcount))
-print('Full set written to: {0}'.format('{0}/selected_particles.star'.format(outdir)))
-subprocess.call(['touch','{0}/RELION_JOB_EXIT_SUCCESS'.format(outdir)])
-#except:
-#	subprocess.call(['touch','{0}/RELION_JOB_EXIT_FAILURE'.format(outdir)])
+try:
+	print("++ Matt's rlnaut minimal class select ++\n")
+	outdir = make_arg('--o',True,True)
+	inparts = make_arg('--in_parts',True,True)
+	thresh = float(make_arg('--thresh',True,True))
+	inmodel = inparts.replace('_data','_model')
+	print('particle count threshold: {0}'.format(thresh))
+	labels,data = read_3p1star(inmodel) 
+	returnclass = get_classes(data,labels,'_rlnClassDistribution',0.019)
+	goodclasses = []
+	for i in returnclass:
+		goodclasses.append(int(i[labels['_rlnReferenceImage']].split('@')[0]))
+	goodclasses.sort()
+	print('Selected {0} classes: {1}'.format(len(goodclasses),goodclasses))
+	plabels,pheader,pdata = read_parts_file(inparts)
+	output = open('{0}/selected_particles.star'.format(outdir),'w')
+	for i in pheader:
+		output.write(i)
+	theclasses = {}
+	partcount = 0
+	for i in pdata:
+		if int(i[plabels['_rlnClassNumber']]) in goodclasses:
+			output.write('{}\n'.format('  '.join(i)))
+			try:
+				theclasses[int(i[plabels['_rlnClassNumber']])].append(i)
+				partcount +=1
+			except:
+				theclasses[int(i[plabels['_rlnClassNumber']])] = [i]
+				partcount+=1
+	
+	## count the particles in each class 
+	minno = min([len(theclasses[x]) for x in theclasses])
+	for i in theclasses:
+		theclasses[i].sort(key=lambda x: x[plabels['_rlnMaxValueProbDistribution']],reverse=True)
+	
+	minout = open('{0}/minimal_classes.star'.format(outdir),'w')
+	
+	## make the minimal output starfile
+	for i in pheader:
+		minout.write(i)
+	classcount = {}
+	minpcount = 0
+	for i in theclasses:
+		if len(theclasses[i]) >= 2*minno:
+			for j in theclasses[i][:(2*minno)]:
+				minout.write('{}\n'.format(' '.join(j)))
+			classcount[i] = 2*minno
+			minpcount+=2*minno
+		else:
+			for j in theclasses[i]:
+				minout.write('{}\n'.format(' '.join(j)))
+			classcount[i] = len(theclasses[i])
+			minpcount+=len(theclasses)
+	
+	if 2*minno < 500:
+		im_jobfile = open('Schedules/rlnaut_1/InitialModel/job.star','r')
+		lines = im_jobfile.readlines()
+		lines[42] = 'sgd_fin_subset_size        {0}'.format(2*minno)
+		im_jobfile.close()
+		im_jobfile = open('Schedules/rlnaut_1/InitialModel/job.star','w')
+		im_jobfile.writelines(lines)
+		im_jobfile.close()
+		print('less than 500 particles in final set!\n using sgd_fin_subset_size of{0}'.format(2*minno))
+	
+	print('\n+ Minimized set stats +\nclass\tparts\tweight')
+	for i in goodclasses:
+		print('{0}\t{1}\t{2:0.2f}'.format(i,classcount[i],float(classcount[i])/(minno*2)))
+	print('\nMinimized particle set contains {0} particles'.format(minpcount))
+	print('Minimized set written to: {0}'.format('{0}/minimal_classes.star\n'.format(outdir)))
+	print('Full particle set contains {0} particles'.format(partcount))
+	print('Full set written to: {0}'.format('{0}/selected_particles.star'.format(outdir)))
+	subprocess.call(['touch','{0}/RELION_JOB_EXIT_SUCCESS'.format(outdir)])
+except:
+	subprocess.call(['touch','{0}/RELION_JOB_EXIT_FAILURE'.format(outdir)])	

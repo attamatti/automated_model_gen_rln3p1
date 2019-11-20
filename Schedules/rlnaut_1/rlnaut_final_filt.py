@@ -44,17 +44,18 @@ def make_arg(flag, value, req):
             Argument.value = False
     return Argument.value
 ##-----------------------------------------------------------------------------------#
-
-print("++ Matt's rlnaut final filter ++")
-outdir = make_arg('--o',True,True)
-inmodel = make_arg('--in_3dref',True,True)
-mail = make_arg('--mail',True,True)
-subprocess.call('relion_image_handler --i {0} --o {1}/rlnaut_initial_model.mrc --lowpass 15'.format(inmodel,outdir),shell=True)
-subprocess.call(['touch','{0}/RELION_JOB_EXIT_SUCCESS'.format(outdir)])
-if mail == 'True':
-	cwd = os.getcwd()
-	mailout = open('mail.txt','w')
-	mailout.write('''rlnaut running in {0} has finished!
-'''.format(cwd))
-	mailout.close()
-	subprocess.call('mail -s "Relion Automated Finished" `whoami`@leeds.ac.uk < mail.txt',shell=True)
+try:
+	print("++ Matt's rlnaut final filter ++")
+	outdir = make_arg('--o',True,True)
+	inmodel = make_arg('--in_3dref',True,True)
+	mail = make_arg('--mail',True,True)
+	subprocess.call('relion_image_handler --i {0} --o {1}/rlnaut_initial_model.mrc --lowpass 15'.format(inmodel,outdir),shell=True)
+	subprocess.call(['touch','{0}/RELION_JOB_EXIT_SUCCESS'.format(outdir)])
+	if mail == 'True':
+		cwd = os.getcwd()
+		mailout = open('mail.txt','w')
+		mailout.write('''rlnaut running in {0} has finished!'''.format(cwd))
+		mailout.close()
+		subprocess.call('mail -s "Relion Automated Finished" `whoami`@leeds.ac.uk < mail.txt',shell=True)
+except:
+	subprocess.call(['touch','{0}/RELION_JOB_EXIT_FAILURE'.format(outdir)])	
