@@ -24,7 +24,7 @@ What the Schedule does:
 
 All this is implemented through relion with a few of my scripts.  
 
-Class selection in very crude at the moment; it takes all classes with greated than 19% of the particles.  This will be replaced with more robust class selection (using Cinderella) in later versions. 
+Class selection in very crude at the moment; it takes all classes with greated than 1.9% of the particles.  This will be replaced with more robust class selection (using Cinderella) in later versions. 
 
 Angle equalization makes it so the most populated class only has 2x as maNy particles as the least populated class.  This gives much improved results if there is a preferred orientation in the data.
 
