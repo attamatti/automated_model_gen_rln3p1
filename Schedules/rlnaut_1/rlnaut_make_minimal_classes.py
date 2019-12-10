@@ -164,7 +164,7 @@ try:
 		im_jobfile = open('Schedules/rlnaut_1/InitalModel/job.star','w')
 		im_jobfile.writelines(lines)
 		im_jobfile.close()
-		print('less than 500 particles in final set!\n using sgd_fin_subset_size of{0}'.format(2*minno))
+		print('less than 500 particles in final set!\n using sgd_fin_subset_size of {0}'.format(2*minno))
 	
 	print('\n+ Minimized set stats +\nclass\tparts\tweight')
 	for i in goodclasses:
