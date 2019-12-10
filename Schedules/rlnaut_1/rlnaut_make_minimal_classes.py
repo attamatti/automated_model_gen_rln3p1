@@ -156,12 +156,12 @@ try:
 			classcount[i] = len(theclasses[i])
 			minpcount+=len(theclasses)
 	
-	if 2*minno < 500:
-		im_jobfile = open('Schedules/rlnaut_1/InitialModel/job.star','r')
+	if 2*minpcount < 500:
+		im_jobfile = open('Schedules/rlnaut_1/InitalModel/job.star','r')
 		lines = im_jobfile.readlines()
 		lines[42] = 'sgd_fin_subset_size        {0}'.format(2*minno)
 		im_jobfile.close()
-		im_jobfile = open('Schedules/rlnaut_1/InitialModel/job.star','w')
+		im_jobfile = open('Schedules/rlnaut_1/InitalModel/job.star','w')
 		im_jobfile.writelines(lines)
 		im_jobfile.close()
 		print('less than 500 particles in final set!\n using sgd_fin_subset_size of{0}'.format(2*minno))
