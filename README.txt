@@ -46,7 +46,7 @@ EXTERNAL USERS
 4) Change the path to cryolo on line 73 of Schedules/rlnaut_1/rlnaur_run_crYOLO.py to your copy of crYOLO
 
 5) Run the setup script:
-	./setup_rlnaut_v2.py --apix <pixelsize in A> --boxsize <boxsize in px> --raw_data <name of raw data dir> --cryolo_model <full path to crYOLO model> --nozip
+	./setup_rlnaut_v2.py --apix <pixelsize in A> --boxsize <boxsize in px> --raw_data <name of raw data dir> --cryolo_model <full path to crYOLO model>
 
 6) run relion and select Schedules -> rlnaut_1
 
@@ -70,7 +70,8 @@ quickly generates an up to 15A starting model from 1st 50 or so micrographs
 	--apix		<number>	Angstrom/pixel
 	--boxsize	<number>	Estimated box size to be used for refinement	
 	--raw_data	<directory>	The name of the directory where the raw data are
-
+	--nozip				This arguments tells it to download Matt's latest version
+	
 	Optional arguments:
 	--cryolo_model  <modelfile.h5>  Full path to Custom trained crYOLO 
 					model to use otherwise will use the 
