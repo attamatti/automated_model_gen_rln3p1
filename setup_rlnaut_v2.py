@@ -10,6 +10,7 @@ rlnaut_zipfile= '/fbs/emsoftware2/LINUX/fbsmi/scripts/workshop/rln_automated/rln
 import subprocess
 import sys
 import os
+import glob
 
 ##-----------------------------------------------------------------------------------#
 errormsg = ""
@@ -88,9 +89,15 @@ elif os.path.isfile(yolomodel) == False:
 else:
 	print(':: Using custom crYOLO model::\n{0}'.format(yolomodel))
 
+if len(glob.glob('{0}/*.mrc*'.format(raw_data))) == 0:
+	sys.exit('ERROR: no files found in raw data directory: {0}'.format(raw_data)) 
+else:
+	print('{0} raw data files found'.format(len(glob.glob('{0}/*.mrc*'.format(raw_data)))))
+
 if nozip == True:
 	print(':: Unpacking ::')
 	subprocess.call('tar -zxvf {0}'.format(rlnaut_zipfile),shell=True)
+
 
 print(':: Writing jobfiles ::')
 print('using crYOLO model: {0}'.format(yolomodel))
