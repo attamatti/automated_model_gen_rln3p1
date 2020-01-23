@@ -80,28 +80,31 @@ raw_data = make_arg('--raw_data',True,True)
 yolomodel = make_arg('--cryolo_model',True,False)
 nozip = make_arg('--nozip',False,False)
 
-if yolomodel == False:
-	print(':: Using default crYOLO model ::')
-	yolomodel = default_cryolo_model
-elif os.path.isfile(yolomodel) == False:
-	yolomodel = default_cryolo_model
-	print(":: Can't find specified crYOLO model ::\nusing {0}".format(yolomodel))
-else:
-	print(':: Using custom crYOLO model::\n{0}'.format(yolomodel))
-
+print('::::::::::  Getting raw data files ::::::::::')
+if raw_data[-1] == '/':
+	raw_data = raw_data[:-1]
 if len(glob.glob('{0}/*.mrc*'.format(raw_data))) == 0:
 	sys.exit('ERROR: no files found in raw data directory: {0}'.format(raw_data)) 
 else:
-	print('{0} raw data files found'.format(len(glob.glob('{0}/*.mrc*'.format(raw_data)))))
+	print('{0} raw data files found in {1}'.format(len(glob.glob('{0}/*.mrc*'.format(raw_data))),os.path.abspath(raw_data)))
 
 if nozip == True:
-	print(':: Unpacking ::')
+	print('\n:::::::::: Unpacking ::::::::::')
 	subprocess.call('tar -zxvf {0}'.format(rlnaut_zipfile),shell=True)
 
 
-print(':: Writing jobfiles ::')
-print('using crYOLO model: {0}'.format(yolomodel))
+print('\n:::::::::: Setting crYOLO parameters ::::::::::')
+if yolomodel == False:
+	print('Using default crYOLO model')
+	yolomodel = default_cryolo_model
+elif os.path.isfile(yolomodel) == False:
+	yolomodel = default_cryolo_model
+	print("Can't find specified crYOLO model")
+else:
+	print('Using custom crYOLO model')
+print('crYOLO model path: {0}'.format(yolomodel))
 ### update the files
+print('\n:::::::::: Writing jobfiles ::::::::::')
 print('Schedules/rlnaut_1/Import/job.star')
 output = open('Schedules/rlnaut_1/Import/job.star','w')
 output.write('''
@@ -367,4 +370,4 @@ skip_gridding         No
    use_gpu        Yes 
 '''.format(int(0.8*float(boxsize))))
 output.close()
-print(':: Done! ::')
+print('\n:::::::::: Done! ::::::::::')
