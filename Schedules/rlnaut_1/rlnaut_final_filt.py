@@ -75,6 +75,7 @@ try:
 		if float(reso) < 15:
 			mailout.write('Final model filtered to 15 A')
 		mailout.close()
-		subprocess.call('mail -s "Relion Automated Finished" `whoami`@leeds.ac.uk < mail.txt',shell=True)
+		subprocess.call('Schedules/rlnaut_1/rlnaut_make_image.py',shell=True)
+		subprocess.call('mail -s "Relion Automated Finished" -a final_classes.png `whoami`@leeds.ac.uk < mail.txt',shell=True)
 except:
 	subprocess.call(['touch','{0}/RELION_JOB_EXIT_FAILURE'.format(outdir)])	
