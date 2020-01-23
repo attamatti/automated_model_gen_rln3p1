@@ -54,7 +54,26 @@ try:
 	if mail == 'True':
 		cwd = os.getcwd()
 		mailout = open('mail.txt','w')
-		mailout.write('''rlnaut running in {0} has finished!'''.format(cwd))
+		mailout.write('''rlnaut running in {0} has finished!\n\n'''.format(cwd))
+		classdata = open('External/job007/run.out','r').readlines()
+		writeit = False
+		for i in classdata:
+			if 'Minimized particle set contains' in i:
+				writeit = True
+			if writeit == True:
+				mailout.write(i)
+
+		imdata = open('InitialModel/job008/run_it300_model.star','r').readlines()
+		n=0
+		for i in imdata:
+			if 'data_model_classes' in i:
+				reso = imdata[n+10].split()[5]
+				FC = imdata[n+10].split()[6]
+			n+=1
+	
+		mailout.write('''\nUNFILTERED MODEL RESOLUTION: {0} \nOVERALL FOURIER COMPLETENESS: {1}\n'''.format(reso,FC))
+		if float(reso) < 15:
+			mailout.write('Final model filtered to 15 A')
 		mailout.close()
 		subprocess.call('mail -s "Relion Automated Finished" `whoami`@leeds.ac.uk < mail.txt',shell=True)
 except:
